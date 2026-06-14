@@ -61,6 +61,7 @@ jobs:
 
     - name: create timestamp
       id: timestamp
+      shell: bash
       run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
     - name: create release
       id: create_release
