@@ -86,7 +86,7 @@ public:
     bool flag_func_singleline = false;
     bool flag_func_no_header = false;
     bool flag_func_header_block = false;
-    bool flag_func_header_singleline = false;
+    bool flag_func_header_simple = false;
 
     Visitor(ParseResult* result, std::string_view source, std::vector<size_t>* line_offsets)
         : result(result)
@@ -195,33 +195,28 @@ public:
             }
         }
 
-        auto cst = result->cstNodeMap[expr0]->as<CstExprFunction>();
+        Location location = expr0->body->location;
+        location.end.line = location.begin.line + 1;
+        location.end.column = 0;
 
-        auto position = cst->functionKeywordPosition;
-        auto start = (*line_offsets)[position.line] + position.column;
-        auto end = (*line_offsets)[position.line + 1] - 1;
+        // NOTE: if we want to check for medal's comment we need to use the below line instead
+        // auto comment = findComment(result, expr0->body->location);
+        auto comment = findComment(result, location);
+        if (comment) {
+            // here we could check for line vs Line
+            // auto start = (*line_offsets)[comment->location.begin.line] + comment->location.begin.column;
+            // auto end = (*line_offsets)[comment->location.end.line] + comment->location.end.column;
 
-        std::string line = std::string(source.substr(start, end - start));
+            // std::string raw = std::string(source.substr(start, end - start));
 
-        auto commentpos = line.find(" --");
-        if (commentpos == std::string::npos)
+            if (comment->type == Luau::Lexeme::BlockComment)
+                flag_func_header_block = true;
+            else // we assume it's not broken
+                flag_func_header_simple = true;
+        } else
             flag_func_no_header = true;
-        else {
-            auto comment = findComment(result, expr0->body->location);
-            if (comment) {
-                // auto start = (*line_offsets)[comment->location.begin.line] + comment->location.begin.column;
-                // auto end = (*line_offsets)[comment->location.end.line] + comment->location.end.column;
 
-                // std::string raw = std::string(source.substr(start, end - start));
-                // here we could check for line vs Line
-                if (comment->type == Luau::Lexeme::BlockComment)
-                    flag_func_header_block = true;
-                else // we assume it's not broken
-                    flag_func_header_singleline = true;
-            }
-        }
-
-        if (expr0->body->location.end.line == position.line)
+        if (expr0->body->location.end.line == expr0->body->location.begin.line)
             flag_func_singleline = true;
 
         return true;
@@ -240,7 +235,7 @@ private:
 
         char ch = var[0];
         flag_var_table |= ch == 't' && isTable(value);
-        flag_var_num |= ch == 'n' && isNumber(value); // TODO: look into if oracle ever emits n%d for values that aren't  a *constant* number
+        flag_var_num |= ch == 'n' && isNumber(value); // TODO: look into if oracle ever emits n%d for values that aren't a *constant* number
         if (ch == '_') {
             if (isJustNumbers(var + 1))
                 flag_var_under_num = true;
@@ -370,7 +365,6 @@ int main(int argc, char** argv) {
 
     ParseOptions options;
     options.captureComments = true;
-    options.storeCstData = true;
     options.noErrorLimit = true;
 
     if (LOG)
@@ -458,7 +452,7 @@ int main(int argc, char** argv) {
         SHOWFLAG(func_no_header)
         SHOWFLAG(func_singleline)
         SHOWFLAG(func_header_block)
-        SHOWFLAG(func_header_singleline)
+        SHOWFLAG(func_header_simple)
 
         #undef SHOWFLAG
     }
@@ -535,7 +529,7 @@ int main(int argc, char** argv) {
         ONLY(medal)
     if (visitor.flag_func_header_block)
         ONLY(luaexpert)
-    if (visitor.flag_func_header_singleline)
+    if (visitor.flag_func_header_simple)
         ONLY(oracle)
 
     #undef UNDERDOGS
