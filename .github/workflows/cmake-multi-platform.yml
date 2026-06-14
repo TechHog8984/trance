@@ -88,7 +88,6 @@ jobs:
       with:
         tag_name: ${{ steps.timestamp.outputs.value }}
         release_name: ${{ steps.timestamp.outputs.value }}
-        draft: true
     - name: pack
       if: matrix.os != 'windows'
       run: zip ldd-${{matrix.os}}.zip ${{ steps.strings.outputs.build-output-dir }}/ldd
