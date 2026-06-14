@@ -29,7 +29,7 @@ options:
 ```
 
 ```bash
-techhog$ ./build/ldd examples/a_oracle.luau 
+techhog$ ./build/ldd examples/a_oracle.luau
 [log] opened file examples/a_oracle.luau
 [log] computing line offsets
 [log] read file (3253 bytes)
@@ -69,7 +69,6 @@ techhog$ ./build/ldd examples/a_oracle.luau
   flag func_singleline: false
   flag func_header_block: false
   flag func_header_singleline: true
-[log] scores assigned. sorting ...
 [log] scores:
   oracle = 14
   luaexpert = 0
