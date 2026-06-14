@@ -39,6 +39,19 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: cache for dependencies
+      uses: actions/cache@v4
+      if: matrix.os.name != 'windows'
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/_deps
+        key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
+    - name: cache for dependencies
+      uses: actions/cache@v4
+      if: matrix.os.name == 'windows'
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}\_deps
+        key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -51,3 +64,46 @@ jobs:
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    - name: create timestamp
+      id: timestamp
+      run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
+    - name: create tag
+      run: |
+        git tag frostbyte-build-${{ steps.timestamp.outputs.value }}
+        git push origin frostbyte-build-${{ steps.timestamp.outputs.value }}
+    - uses: actions/upload-artifact@v4
+      if: matrix.os.name != 'windows'
+      with:
+        name: luau-${{matrix.os.name}}
+        path: luau*
+        overwrite: true
+    - uses: actions/upload-artifact@v4
+      if: matrix.os.name == 'windows'
+      with:
+        name: luau-${{matrix.os.name}}
+        path: Release\luau*.exe
+        overwrite: true
+    - name: create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.timestamp.outputs.value }}
+        release_name: ${{ steps.timestamp.outputs.value }}
+        draft: true
+    - name: pack
+      if: matrix.os.name != 'windows'
+      run: zip ldd-${{matrix.os.name}}.zip ${{ steps.strings.outputs.build-output-dir }}/ldd
+    - name: pack
+      if: matrix.os.name == 'windows'
+      run: 7z a ldd-${{matrix.os.name}}.zip ${{ steps.strings.outputs.build-output-dir }}\ldd.exe
+    - uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: luau-${{matrix.os.name}}.zip
+        asset_name: luau-${{matrix.os.name}}.zip
+        asset_content_type: application/octet-stream
