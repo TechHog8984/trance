@@ -68,7 +68,7 @@ techhog$ ./build/ldd examples/a_oracle.luau
   flag func_no_header: false
   flag func_singleline: false
   flag func_header_block: false
-  flag func_header_singleline: true
+  flag func_header_simple: true
 [log] scores:
   oracle = 14
   luaexpert = 0
