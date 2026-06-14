@@ -83,14 +83,6 @@ jobs:
       shell: bash
       run: echo "value=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
 
-    - name: create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ needs.create-release.outputs.timestamp }}
-        release_name: ${{ needs.create-release.outputs.timestamp }}
     - name: pack
       if: matrix.os != 'windows-latest'
       run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
