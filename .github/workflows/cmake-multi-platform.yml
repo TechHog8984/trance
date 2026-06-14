@@ -35,13 +35,13 @@ jobs:
 
     - name: cache for dependencies
       uses: actions/cache@v4
-      if: matrix.os != 'windows'
+      if: matrix.os != 'windows-latest'
       with:
         path: build/_deps
         key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
     - name: cache for dependencies
       uses: actions/cache@v4
-      if: matrix.os == 'windows'
+      if: matrix.os == 'windows-latest'
       with:
         path: build\_deps
         key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
@@ -63,13 +63,13 @@ jobs:
       id: timestamp
       run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
-      if: matrix.os != 'windows'
+      if: matrix.os != 'windows-latest'
       with:
         name: luau-${{matrix.os}}
         path: luau*
         overwrite: true
     - uses: actions/upload-artifact@v4
-      if: matrix.os == 'windows'
+      if: matrix.os == 'windows-latest'
       with:
         name: luau-${{matrix.os}}
         path: Release\luau*.exe
@@ -83,10 +83,10 @@ jobs:
         tag_name: ${{ steps.timestamp.outputs.value }}
         release_name: ${{ steps.timestamp.outputs.value }}
     - name: pack
-      if: matrix.os != 'windows'
+      if: matrix.os != 'windows-latest'
       run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
     - name: pack
-      if: matrix.os == 'windows'
+      if: matrix.os == 'windows-latest'
       run: 7z a ldd-${{matrix.os}}.zip build\ldd.exe
     - uses: actions/upload-release-asset@v1
       env:
