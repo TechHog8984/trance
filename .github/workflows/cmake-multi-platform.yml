@@ -62,7 +62,7 @@ jobs:
     - name: get commit hash
       id: commithash
       shell: bash
-      run: echo "hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+      run: echo "$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
 
     - name: create release
       id: create_release
