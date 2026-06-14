@@ -76,7 +76,7 @@ jobs:
       run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
     - name: pack
       if: matrix.os == 'windows-latest'
-      run: cd build\Release && 7z a ldd-${{matrix.os}}.zip ldd.exe && move ldd-${{matrix.os}} ../../
+      run: cd build\Release && 7z a ldd-${{matrix.os}}.zip ldd.exe && move ldd-${{matrix.os}}.zip ../../
     - uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
