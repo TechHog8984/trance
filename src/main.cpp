@@ -353,12 +353,12 @@ int main(int argc, char** argv) {
     file.close();
 
     if (LOG)
+        printf("[log] read file (%zu bytes)\n", contents.size());
+
+    if (LOG)
         puts("[log] computing line offsets");
 
     auto line_offsets = computeLineOffsets(contents);
-
-    if (LOG)
-        printf("[log] read file (%zu bytes)\n", contents.size());
 
     Allocator allocator;
     AstNameTable name_table(allocator);

@@ -31,8 +31,8 @@ options:
 ```bash
 techhog$ ./build/ldd examples/a_oracle.luau
 [log] opened file examples/a_oracle.luau
-[log] computing line offsets
 [log] read file (3253 bytes)
+[log] computing line offsets
 [log] parsing...
 [log] parsed & valid input
 [log] visited. assigning scores ...
