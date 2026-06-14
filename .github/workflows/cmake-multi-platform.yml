@@ -7,7 +7,26 @@ on:
     branches: [ "main" ]
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.value }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: create timestamp
+        id: timestamp
+        run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
+      - name: create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.timestamp.outputs.value }}
+          release_name: ${{ steps.timestamp.outputs.value }}
+
   build:
+    needs: ["create-release"]
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -70,8 +89,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.commithash.outputs.value }}
-        release_name: ${{ steps.commithash.outputs.value }}
+        tag_name: ${{ needs.create-release.outputs.timestamp }}
+        release_name: ${{ needs.create-release.outputs.timestamp }}
     - name: pack
       if: matrix.os != 'windows-latest'
       run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
@@ -82,7 +101,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ldd-${{matrix.os}}.zip
         asset_name: ldd-${{matrix.os}}.zip
         asset_content_type: application/octet-stream
