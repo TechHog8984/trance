@@ -30,45 +30,46 @@ options:
 
 ```bash
 techhog$ ./build/ldd examples/a_oracle.luau
-[log] opened file examples/a_oracle.luau
-[log] read file (3253 bytes)
-[log] computing line offsets
+[log] opened file. examples/a_oracle.luau
+[log] read file. (3253 bytes)
+[log] computing line offsets...
 [log] parsing...
-[log] parsed & valid input
-[log] visited. assigning scores ...
-[log] flags:
-  flag ifexpr: true
-  flag compoundassign: false
-  flag var_table: true
-  flag var_num: true
-  flag var_under: true
-  flag var_dunder: false
-  flag var_under_num: false
-  flag simple_upvalue: true
-  flag medal_upvalue: false
-  flag func_name_v: true
-  flag func_name_f: false
-  flag param_under: true
-  flag param_dunder: false
-  flag param_untouched: true
-  flag forvar_medal_upvalue: false
-  flag forvar_under: true
-  flag forvar_dunder: false
-  flag forvar_i: true
-  flag forvar_j: true
-  flag forvar_k: true
-  flag forvar_n: true
-  flag forvar_m: false
-  flag forvar_i_num: false
-  flag forvar_n_num: true
-  flag forvar_v_num: false
-  flag forinvar_medal_upvalue: false
-  flag forinvar_under: true
-  flag forinvar_dunder: false
-  flag func_no_header: false
-  flag func_singleline: false
-  flag func_header_block: false
-  flag func_header_simple: true
+[log] parsed & valid input.
+[log] visiting...
+[log] visited. flags:
+  ifexpr: true
+  compoundassign: false
+  var_table: true
+  var_num: true
+  var_under: true
+  var_dunder: false
+  var_under_num: false
+  simple_upvalue: true
+  medal_upvalue: false
+  func_name_v: true
+  func_name_f: false
+  param_under: true
+  param_dunder: false
+  param_untouched: true
+  forvar_medal_upvalue: false
+  forvar_under: true
+  forvar_dunder: false
+  forvar_i: true
+  forvar_j: true
+  forvar_k: true
+  forvar_n: true
+  forvar_m: false
+  forvar_i_num: false
+  forvar_n_num: true
+  forvar_v_num: false
+  forinvar_medal_upvalue: false
+  forinvar_under: true
+  forinvar_dunder: false
+  func_no_header: false
+  func_singleline: false
+  func_header_block: false
+  func_header_simple: true
+[log] assigning scores...
 [log] scores:
   oracle = 14
   luaexpert = 0

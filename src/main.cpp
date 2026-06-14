@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     if (LOG)
-        printf("[log] opened file %s\n", file_path);
+        printf("[log] opened file. %s\n", file_path);
 
     std::string contents;
     std::string buffer;
@@ -353,10 +353,10 @@ int main(int argc, char** argv) {
     file.close();
 
     if (LOG)
-        printf("[log] read file (%zu bytes)\n", contents.size());
+        printf("[log] read file. (%zu bytes)\n", contents.size());
 
     if (LOG)
-        puts("[log] computing line offsets");
+        puts("[log] computing line offsets...");
 
     auto line_offsets = computeLineOffsets(contents);
 
@@ -389,31 +389,19 @@ int main(int argc, char** argv) {
     }
 
     if (LOG)
-        puts("[log] parsed & valid input");
+        puts("[log] parsed & valid input.");
 
     Visitor visitor(&result, contents, &line_offsets);
-    result.root->visit(&visitor);
 
     if (LOG)
-        puts("[log] visited. assigning scores ...");
+        puts("[log] visiting...");
 
-    // declare all
-    #define X(name) int score_##name = 0;
-    DECOMPILERS(X)
-    #undef X
-
-    #define DECREMENT(name) score_##name--;
-    #define DECREMENT_ALL DECOMPILERS(DECREMENT)
-    #define ONLY(name) { DECREMENT_ALL score_##name += 2; }
-    #define ONLY2(name1, name2) { DECREMENT_ALL score_##name1 += 2; score_##name2 += 2; }
-    #define BIG2() ONLY2(oracle, luaexpert)
-    #define UNEXPECTED_DUO() ONLY2(oracle, medal)
-    #define UNDERDOGS() ONLY2(luaexpert, medal)
+    result.root->visit(&visitor);
 
     if (LOG) {
-        puts("[log] flags:");
+        puts("[log] visited. flags:");
 
-        #define SHOWFLAG(flag) printf("  flag " #flag ": %s\n", visitor.flag_##flag ? "true" : "false");
+        #define SHOWFLAG(flag) printf("  " #flag ": %s\n", visitor.flag_##flag ? "true" : "false");
         SHOWFLAG(ifexpr)
         SHOWFLAG(compoundassign)
 
@@ -457,7 +445,22 @@ int main(int argc, char** argv) {
         #undef SHOWFLAG
     }
 
+    // declare all
+    #define X(name) int score_##name = 0;
+    DECOMPILERS(X)
+    #undef X
+
+    #define DECREMENT(name) score_##name--;
+    #define DECREMENT_ALL DECOMPILERS(DECREMENT)
+    #define ONLY(name) { DECREMENT_ALL score_##name += 2; }
+    #define ONLY2(name1, name2) { DECREMENT_ALL score_##name1 += 2; score_##name2 += 2; }
+    #define BIG2() ONLY2(oracle, luaexpert)
+    #define UNEXPECTED_DUO() ONLY2(oracle, medal)
+    #define UNDERDOGS() ONLY2(luaexpert, medal)
+
     // adjust scores based on flags
+    if (LOG)
+        puts("[log] assigning scores...");
 
     if (visitor.flag_ifexpr)
         BIG2()
@@ -540,6 +543,13 @@ int main(int argc, char** argv) {
     #undef DECREMENT_ALL
     #undef DECREMENT
 
+    if (LOG) {
+        puts("[log] scores:");
+        #define X(name) printf("  %s = %d\n", #name, score_##name);
+        DECOMPILERS(X)
+        #undef X
+    }
+
     // ensure at least one score is above 0
     #define X(name) score_##name ||
     if (!(DECOMPILERS(X) false)) {
@@ -555,13 +565,6 @@ int main(int argc, char** argv) {
         DECOMPILERS(X)
         #undef X
     };
-
-    if (LOG) {
-        puts("[log] scores:");
-        #define X(name) printf("  %s = %d\n", #name, score_##name);
-        DECOMPILERS(X)
-        #undef X
-    }
 
     std::sort(scores.begin(), scores.end());
 
