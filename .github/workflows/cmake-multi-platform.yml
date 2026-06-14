@@ -90,7 +90,7 @@ jobs:
         release_name: ${{ steps.timestamp.outputs.value }}
     - name: pack
       if: matrix.os != 'windows'
-      run: zip ldd-${{matrix.os}}.zip ${{ steps.strings.outputs.build-output-dir }}/ldd
+      run: pushd ${{ steps.strings.outputs.build-output-dir }} && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip $(popd)
     - name: pack
       if: matrix.os == 'windows'
       run: 7z a ldd-${{matrix.os}}.zip ${{ steps.strings.outputs.build-output-dir }}\ldd.exe
