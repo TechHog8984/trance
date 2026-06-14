@@ -41,13 +41,13 @@ jobs:
 
     - name: cache for dependencies
       uses: actions/cache@v4
-      if: matrix.os.name != 'windows'
+      if: matrix.os != 'windows'
       with:
         path: ${{ steps.strings.outputs.build-output-dir }}/_deps
         key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
     - name: cache for dependencies
       uses: actions/cache@v4
-      if: matrix.os.name == 'windows'
+      if: matrix.os == 'windows'
       with:
         path: ${{ steps.strings.outputs.build-output-dir }}\_deps
         key: ${{ runner.os }}-dependencies-${{ hashFiles('luauver.txt') }}
@@ -69,15 +69,15 @@ jobs:
       id: timestamp
       run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
-      if: matrix.os.name != 'windows'
+      if: matrix.os != 'windows'
       with:
-        name: luau-${{matrix.os.name}}
+        name: luau-${{matrix.os}}
         path: luau*
         overwrite: true
     - uses: actions/upload-artifact@v4
-      if: matrix.os.name == 'windows'
+      if: matrix.os == 'windows'
       with:
-        name: luau-${{matrix.os.name}}
+        name: luau-${{matrix.os}}
         path: Release\luau*.exe
         overwrite: true
     - name: create release
@@ -90,16 +90,16 @@ jobs:
         release_name: ${{ steps.timestamp.outputs.value }}
         draft: true
     - name: pack
-      if: matrix.os.name != 'windows'
-      run: zip ldd-${{matrix.os.name}}.zip ${{ steps.strings.outputs.build-output-dir }}/ldd
+      if: matrix.os != 'windows'
+      run: zip ldd-${{matrix.os}}.zip ${{ steps.strings.outputs.build-output-dir }}/ldd
     - name: pack
-      if: matrix.os.name == 'windows'
-      run: 7z a ldd-${{matrix.os.name}}.zip ${{ steps.strings.outputs.build-output-dir }}\ldd.exe
+      if: matrix.os == 'windows'
+      run: 7z a ldd-${{matrix.os}}.zip ${{ steps.strings.outputs.build-output-dir }}\ldd.exe
     - uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ldd-${{matrix.os.name}}.zip
-        asset_name: ldd-${{matrix.os.name}}.zip
+        asset_path: ldd-${{matrix.os}}.zip
+        asset_name: ldd-${{matrix.os}}.zip
         asset_content_type: application/octet-stream
