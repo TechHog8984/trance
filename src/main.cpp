@@ -321,8 +321,8 @@ int main(int argc, char** argv) {
 
     for (int i = 1; i < argc; i++) {
         const char* arg = argv[i];
-        if (arg[0] and arg[0] == '-') {
-            if (arg[1] and arg[1] == 's')
+        if (arg[0] && arg[0] == '-') {
+            if (arg[1] && arg[1] == 's')
                 logging--;
             else {
                 fprintf(stderr, "[ERROR]: invalid arg %s; run with no arguments for help (run %s)\n", arg, argv[0]);
