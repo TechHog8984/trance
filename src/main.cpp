@@ -607,7 +607,7 @@ int main(int argc, char** argv) {
         printf("detected: ");
     printf("%s\n", best_name);
     if (LOG)
-        printf("\nscore: %d\n", *best);
+        printf("score: %d\n", *best);
 
     return 0;
 }

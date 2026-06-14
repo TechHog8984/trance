@@ -73,7 +73,7 @@ techhog$ ./build/ldd examples/a_oracle.luau
   oracle = 14
   luaexpert = 0
   medal = -6
-oracle
+detected: oracle
 score: 14
 ```
 
