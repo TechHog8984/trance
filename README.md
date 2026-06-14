@@ -103,14 +103,14 @@ When describing a 'format', a lua pattern will be used (a leading ^ and a traili
 * extensive customizability so take with a grain of salt
 * supports Luau v? - v11, PUC-Rio Lua 4.0 - 5.5 (v2 docs says it only supports 5.1 but I doubt that...), LuaJIT
 * can output if expressions and compound assigments if configured (both default to true in Luau, but it will emit them for other versions if so desired)
-* variables follow the format \[vtu]%d (I'm not sure whether or not you can find any one of these alone, but I have not encountered them EXCEPT for n which can be a for loop variable)
+* variables follow the format \[ntuv]%d (I'm not sure whether or not you can find any one of these alone, but I have not encountered them EXCEPT for n which can be a for loop variable)
   * n%d is used when the variable is declared as a number (`local n1 = 40`)
   * t%d is used when the variable is declared as a table (`local t2 = { 1 }`)
   * u%d is used for variables that get used as upvalues (and do NOT already fit any of the above formats)
   * v%d is used in other cases
-* function names follow the format follow v%d
+* function names follow the format v%d
 * function parameters follow the format p%d (not always starting at 1)
-* _ and __ are omitted for unused variables (they seem to be both used randomly (the same choice will be in every use in the same file but I've seen samples with both (idk dude)))
+* _ and __ are omitted for unused variables (they seem to be both used randomly; the same choice will be in every use in the same file but I've seen samples with both (idk dude))
 * dynamic table output:
   * empty tables will be on one line (`local t3 = {}`)
   * lists with one item will be on one line with the value surrounded by spaces (`local t2 = { globalfunction() }`)
@@ -184,7 +184,6 @@ return v1
 * function names follow the format v%d
 * function parameters follow the format p%d
 * unused variables and parameters become _
-  * unused for loop variables undergo NO change
 * dynamic table output (see Oracle)
 * for loop variables use the same format as normal variables (including upvalues and unused)
 * for step is omitted if it's 1
