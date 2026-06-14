@@ -59,18 +59,19 @@ jobs:
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }}
 
-    - name: create timestamp
-      id: timestamp
+    - name: get commit hash
+      id: commithash
       shell: bash
-      run: echo "value=$(date +'%F_%H-%M-%S')" >> $GITHUB_OUTPUT
+      run: echo "hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_OUTPUT
+
     - name: create release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.timestamp.outputs.value }}
-        release_name: ${{ steps.timestamp.outputs.value }}
+        tag_name: ${{ steps.commithash.outputs.value }}
+        release_name: ${{ steps.commithash.outputs.value }}
     - name: pack
       if: matrix.os != 'windows-latest'
       run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
