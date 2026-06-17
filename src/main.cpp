@@ -551,7 +551,7 @@ int main(int argc, char** argv) {
     }
 
     // ensure at least one score is above 0
-    #define X(name) score_##name ||
+    #define X(name) score_##name > 0 ||
     if (!(DECOMPILERS(X) false)) {
     #undef X
         if (LOGERR)
