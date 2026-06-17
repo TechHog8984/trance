@@ -85,15 +85,15 @@ jobs:
 
     - name: pack
       if: matrix.os != 'windows-latest'
-      run: cd build && zip ldd-${{matrix.os}}.zip ldd && mv ldd-${{matrix.os}}.zip ../
+      run: cd build && zip trance-${{matrix.os}}.zip trance && mv trance-${{matrix.os}}.zip ../
     - name: pack
       if: matrix.os == 'windows-latest'
-      run: cd build\Release && 7z a ldd-${{matrix.os}}.zip ldd.exe && move ldd-${{matrix.os}}.zip ../../
+      run: cd build\Release && 7z a trance-${{matrix.os}}.zip trance.exe && move trance-${{matrix.os}}.zip ../../
     - uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
-        asset_path: ldd-${{matrix.os}}.zip
-        asset_name: ldd-${{matrix.os}}.zip
+        asset_path: trance-${{matrix.os}}.zip
+        asset_name: trance-${{matrix.os}}.zip
         asset_content_type: application/octet-stream
