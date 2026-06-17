@@ -2,7 +2,7 @@
 
 trance takes in a decompiled lua script and outputs what decompiler it thinks was used.
 
-NOTE: trance expects output from a decompiler... if you pass in a script that was not decompiled, it will happily tell you that Oracle or luaexpert was used (garbage in = garbage out)
+NOTE: trance expects output from a decompiler... if you pass in a script that was not decompiled, it may happily tell you that Oracle or luaexpert was used (garbage in = garbage out)
 
 # LICENSING
 trance uses code from [lute](https://github.com/luau-lang/lute). see [lute_LICENSE.txt](lute_LICENSE.txt)

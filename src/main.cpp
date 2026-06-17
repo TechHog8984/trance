@@ -48,43 +48,43 @@ class Visitor : public AstVisitor {
     std::string_view source;
     std::vector<size_t>* line_offsets = nullptr;
 public:
-    bool flag_ifexpr = false;
-    bool flag_compoundassign = false;
+    bool flag_ifexpr = false; // weak
+    bool flag_compoundassign = false; // weak
 
     bool flag_var_table = false;
     bool flag_var_num = false;
-    bool flag_var_under = false;
+    bool flag_var_under = false; // weak
     bool flag_var_dunder = false;
     bool flag_var_under_num = false;
 
-    bool flag_simple_upvalue = false;
+    bool flag_simple_upvalue = false; // weak
     bool flag_medal_upvalue = false;
 
     bool flag_func_name_v = false;
     bool flag_func_name_f = false;
 
-    bool flag_param_under = false;
+    bool flag_param_under = false; // weak
     bool flag_param_dunder = false;
     bool flag_param_untouched = false;
 
     bool flag_forvar_medal_upvalue = false;
-    bool flag_forvar_under = false;
+    bool flag_forvar_under = false; // weak
     bool flag_forvar_dunder = false;
-    bool flag_forvar_i = false;
-    bool flag_forvar_j = false;
-    bool flag_forvar_k = false;
-    bool flag_forvar_n = false;
+    bool flag_forvar_i = false; // weak
+    bool flag_forvar_j = false; // weak
+    bool flag_forvar_k = false; // weak
+    bool flag_forvar_n = false; // weak
     bool flag_forvar_m = false;
     bool flag_forvar_i_num = false;
     bool flag_forvar_n_num = false;
     bool flag_forvar_v_num = false;
 
     bool flag_forinvar_medal_upvalue = false;
-    bool flag_forinvar_under = false;
+    bool flag_forinvar_under = false; // weak
     bool flag_forinvar_dunder = false;
 
-    bool flag_func_singleline = false;
-    bool flag_func_no_header = false;
+    bool flag_func_singleline = false; // weak
+    bool flag_func_no_header = false; // weak
     bool flag_func_header_block = false;
     bool flag_func_header_simple = false;
 
@@ -242,9 +242,9 @@ private:
             else {
                 char next = *(var + 1);
                 if (next == '_')
-                    flag_var_dunder = true;
-                else if (!next)
-                    flag_var_under = true;
+                    flag_var_dunder |= !*(var + 2);
+                else
+                    flag_var_under |= !next;
             }
         }
         flag_simple_upvalue |= ch == 'u' && isJustNumbers(var + 1);
@@ -398,10 +398,26 @@ int main(int argc, char** argv) {
 
     result.root->visit(&visitor);
 
+    bool any_strong = visitor.flag_var_table || visitor.flag_var_num || visitor.flag_var_dunder || visitor.flag_var_under_num || visitor.flag_medal_upvalue || visitor.flag_func_name_v || visitor.flag_func_name_f || visitor.flag_param_dunder || visitor.flag_param_untouched || visitor.flag_forvar_medal_upvalue || visitor.flag_forvar_dunder || visitor.flag_forvar_m || visitor.flag_forvar_i_num || visitor.flag_forvar_n_num || visitor.flag_forvar_v_num || visitor.flag_forinvar_medal_upvalue || visitor.flag_forinvar_dunder || visitor.flag_forinvar_medal_upvalue || visitor.flag_func_header_block || visitor.flag_func_header_simple;
+
     if (LOG) {
         puts("[log] visited. flags:");
 
-        #define SHOWFLAG(flag) printf("  " #flag ": %s\n", visitor.flag_##flag ? "true" : "false");
+        int flag_count = 0;
+        const int flag_len = 30;
+        char lines[5][flag_len];
+        memset(lines, 0, sizeof(lines));
+
+        #define SHOWFLAG(flag) { \
+        snprintf(lines[flag_count], flag_len, "%s: %s", #flag, visitor.flag_##flag ? "true" : "false"); \
+        if (flag_count == 4) { \
+            printf("  %s, %s, %s, %s, %s,\n", lines[flag_count - 4], lines[flag_count - 3], lines[flag_count - 2], lines[flag_count - 1], lines[flag_count]); \
+            flag_count = -1; \
+        } \
+        flag_count++; \
+        }
+
+        #define oldSHOWFLAG(flag) printf("  " #flag ": %s\n", visitor.flag_##flag ? "true" : "false");
         SHOWFLAG(ifexpr)
         SHOWFLAG(compoundassign)
 
@@ -442,6 +458,13 @@ int main(int argc, char** argv) {
         SHOWFLAG(func_header_block)
         SHOWFLAG(func_header_simple)
 
+        if (flag_count)
+            printf("  ");
+        for (int i = 0; i < flag_count - 1; i++)
+            printf("%s, ", lines[i]);
+        if (flag_count)
+            printf("%s\n", lines[flag_count - 1]);
+
         #undef SHOWFLAG
     }
 
@@ -450,10 +473,14 @@ int main(int argc, char** argv) {
     DECOMPILERS(X)
     #undef X
 
+    int increment = 2;
+
+    #define WEAK() { if (!any_strong) increment = 0; }
+
     #define DECREMENT(name) score_##name--;
     #define DECREMENT_ALL DECOMPILERS(DECREMENT)
-    #define ONLY(name) { DECREMENT_ALL score_##name += 2; }
-    #define ONLY2(name1, name2) { DECREMENT_ALL score_##name1 += 2; score_##name2 += 2; }
+    #define ONLY(name) { DECREMENT_ALL score_##name += increment; increment = 2; }
+    #define ONLY2(name1, name2) { DECREMENT_ALL score_##name1 += increment; score_##name2 += increment; increment = 2; }
     #define BIG2() ONLY2(oracle, luaexpert)
     #define UNEXPECTED_DUO() ONLY2(oracle, medal)
     #define UNDERDOGS() ONLY2(luaexpert, medal)
@@ -462,10 +489,14 @@ int main(int argc, char** argv) {
     if (LOG)
         puts("[log] assigning scores...");
 
-    if (visitor.flag_ifexpr)
+    if (visitor.flag_ifexpr) {
+        WEAK()
         BIG2()
-    if (visitor.flag_compoundassign)
+    }
+    if (visitor.flag_compoundassign) {
+        WEAK()
         ONLY(oracle)
+    }
     // type-specific variable names
     if (visitor.flag_var_table)
         BIG2()
@@ -474,9 +505,10 @@ int main(int argc, char** argv) {
     // unused variables
     if (visitor.flag_var_under_num)
         ONLY(luaexpert)
-    else if (visitor.flag_var_under)
+    else if (visitor.flag_var_under) {
+        WEAK()
         UNEXPECTED_DUO()
-    else if (visitor.flag_var_dunder)
+    } else if (visitor.flag_var_dunder)
         ONLY(oracle)
     // upvalues
     if (visitor.flag_simple_upvalue)
@@ -489,8 +521,10 @@ int main(int argc, char** argv) {
     if (visitor.flag_func_name_f)
         ONLY(luaexpert)
     // parameters
-    if (visitor.flag_param_under)
+    if (visitor.flag_param_under) {
+        WEAK()
         UNEXPECTED_DUO()
+    }
     if (visitor.flag_param_dunder)
         ONLY(oracle)
     if (visitor.flag_param_untouched)
@@ -503,16 +537,26 @@ int main(int argc, char** argv) {
     else if (visitor.flag_forvar_m)
         ONLY(luaexpert)
     else {
-        if (visitor.flag_forvar_under)
+        if (visitor.flag_forvar_under) {
+            WEAK()
             UNEXPECTED_DUO()
-        if (visitor.flag_forvar_i)
+        }
+        if (visitor.flag_forvar_i) {
+            WEAK()
             BIG2()
-        if (visitor.flag_forvar_j)
+        }
+        if (visitor.flag_forvar_j) {
+            WEAK()
             BIG2()
-        if (visitor.flag_forvar_k)
+        }
+        if (visitor.flag_forvar_k) {
+            WEAK()
             BIG2()
-        if (visitor.flag_forvar_n)
+        }
+        if (visitor.flag_forvar_n) {
+            WEAK()
             BIG2()
+        }
         if (visitor.flag_forvar_i_num)
             ONLY(luaexpert)
         if (visitor.flag_forvar_n_num)
@@ -522,14 +566,19 @@ int main(int argc, char** argv) {
     }
     if (visitor.flag_forinvar_medal_upvalue)
         ONLY(medal)
-    else if (visitor.flag_forinvar_dunder)
-        ONLY(oracle)
-    else if (visitor.flag_forinvar_under)
+    else if (visitor.flag_forinvar_under) {
+        WEAK()
         UNEXPECTED_DUO()
-    if (visitor.flag_func_singleline)
+    } else if (visitor.flag_forinvar_dunder)
+        ONLY(oracle)
+    if (visitor.flag_func_singleline) {
+        WEAK()
         UNDERDOGS()
-    if (visitor.flag_func_no_header)
+    }
+    if (visitor.flag_func_no_header) {
+        WEAK()
         ONLY(medal)
+    }
     if (visitor.flag_func_header_block)
         ONLY(luaexpert)
     if (visitor.flag_func_header_simple)
@@ -542,13 +591,6 @@ int main(int argc, char** argv) {
     #undef ONLY
     #undef DECREMENT_ALL
     #undef DECREMENT
-
-    if (LOG) {
-        puts("[log] scores:");
-        #define X(name) printf("  %s = %d\n", #name, score_##name);
-        DECOMPILERS(X)
-        #undef X
-    }
 
     // ensure at least one score is above 0
     #define X(name) score_##name > 0 ||
@@ -600,11 +642,18 @@ int main(int argc, char** argv) {
     DECOMPILERS(X) ; // important semi-colon
     #undef X
 
-    if (LOG)
+    if (LOG) {
+        puts("[log] scores:");
+        #define X(name) printf("  %s%s = %d\n", *best == score_##name ? "*" : "", #name, score_##name);
+        DECOMPILERS(X)
+        #undef X
+
         printf("detected: ");
+    }
     printf("%s\n", best_name);
-    if (LOG)
-        printf("score: %d\n", *best);
+
+    if (LOG && !any_strong)
+        puts("[warning]: no strong flags detected (either script is small or it is not any of the supported decompilers)");
 
     return 0;
 }
